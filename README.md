@@ -1,0 +1,1 @@
+# garsche_notification_plugin
