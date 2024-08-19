@@ -1,0 +1,30 @@
+{
+  "files.exclude": {
+    "**/.classpath": true,
+    "**/.project": true,
+    "**/.settings": true,
+    "**/.factorypath": true
+  },
+  "editor.suggestSelection": "first",
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "editor.formatOnPaste": true,
+  "editor.formatOnSave": true,
+  "editor.tabSize": 2,
+  "prettier.printWidth": 180,
+  "prettier.trailingComma": "es5",
+  "prettier.tabWidth": 2,
+  "prettier.semi": true,
+  "prettier.singleQuote": false,
+  "prettier.jsxSingleQuote": false,
+  "prettier.endOfLine": "lf",
+  "javascript.updateImportsOnFileMove.enabled": "always",
+  "javascript.format.semicolons": "insert",
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "typescript.format.semicolons": "insert",
+  "css.lint.emptyRules": "ignore",
+  "cSpell.diagnosticLevel": "Information",
+  "cSpell.words": ["novelworks", "garoon", "garsche", "signup", "notif", "gbdev", "kintone", "cybozu"]
+}
