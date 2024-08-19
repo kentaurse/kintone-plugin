@@ -2,7 +2,7 @@
 const runAll = require("npm-run-all");
 
 runAll(["develop", "upload"], {
-  parallel: true,
+  parallel: false,
   stdout: process.stdout,
   stdin: process.stdin
 }).catch(({results}) => {
