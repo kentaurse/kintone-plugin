@@ -1,0 +1,27 @@
+{
+  "$schema": "https://raw.githubusercontent.com/kintone/js-sdk/%40kintone/plugin-manifest-validator%4010.2.0/packages/plugin-manifest-validator/manifest-schema.json",
+  "manifest_version": 1,
+  "version": 1,
+  "type": "APP",
+  "desktop": {
+    "js": ["src/js/desktop.js"],
+    "css": ["src/css/51-modern-default.css", "src/css/desktop.css"]
+  },
+  "icon": "src/image/icon.png",
+  "config": {
+    "html": "src/html/config.html",
+    "js": ["src/js/config.js"],
+    "css": ["src/css/51-modern-default.css", "src/css/config.css"],
+    "required_params": ["message"]
+  },
+  "name": {
+    "en": "garsche_notification"
+  },
+  "description": {
+    "en": "Manage garshce notifications on kintone side"
+  },
+  "mobile": {
+    "js": ["src/js/mobile.js"],
+    "css": ["src/css/mobile.css"]
+  }
+}
