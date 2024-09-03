@@ -4,7 +4,7 @@
   "version": 1,
   "type": "APP",
   "desktop": {
-    "js": ["src/js/desktop.js"],
+    "js": ["dist/desktop.js"],
     "css": ["src/css/51-modern-default.css", "src/css/desktop.css"]
   },
   "icon": "src/image/icon.png",
