@@ -4,9 +4,10 @@ declare namespace kintone {
   namespace app {
     function getId(): number;
     namespace record {
-      function get(): Promise<{ record: Record<string, any> }>;
-      function set(data: { record: Record<string, any> }): Promise<void>;
+      function get(): Promise<{ record: Record<string, any>; }>;
+      function set(data: { record: Record<string, any>; }): Promise<void>;
       function setFieldShown(fieldCode: string, isVisible: boolean): void;
+      function getSpaceElement(elementID: string): HTMLElement;
     }
     function getHeaderMenuSpaceElement(): HTMLElement;
   }
