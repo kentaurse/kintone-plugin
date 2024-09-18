@@ -22,5 +22,5 @@ declare namespace kintone {
     }
   }
 
-  function api(url: string, method: "GET" | "POST", body: any, success: (response: any) => void, failure: (error: any) => void): void;
+  function api(url: string, method: "GET" | "POST" | "PUT", body: any, success: (response: any) => void, failure: (error: any) => void): void;
 }

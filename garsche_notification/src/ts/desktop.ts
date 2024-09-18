@@ -1,3 +1,5 @@
+const axios = require('axios');
+
 function main(PLUGIN_ID: string) {
   ("use strict");
   const onLoadEvent = "app.record.index.show";
@@ -83,6 +85,29 @@ function main(PLUGIN_ID: string) {
     shareButton.id = 'shareButton';
     shareButton.innerText = '公開';
     shareButton.style.marginLeft = '8px';
+    shareButton.onclick = async () => {
+      const headers = {
+        "Content-Type": "application/json",
+        "x-api-key": "dfSe2W4BxG8EtfH3eqVIL6001b2uD6R01FwarSAy",
+        "Access-Control-Allow-Origin": ""
+      };
+
+      const data = {
+        notification: {
+          created_at: Date.now(),
+          exp_date: Date.now() + 30 * 24 * 60 * 60 * 1000,
+          title: record["title"].value,
+          body: record["notificationContent"].value
+        }
+      };
+
+      try {
+        const response = await axios.put('https://api.dev.garsche.net/db/notification', data, { headers });
+        console.log('Success:', response.data);
+      } catch (error: any) {
+        console.error('Error:', error.response ? error.response.data : error.message);
+      }
+    };
     const shareSpaceField = kintone.app.record.getSpaceElement('share');
     shareSpaceField.appendChild(shareButton);
 
