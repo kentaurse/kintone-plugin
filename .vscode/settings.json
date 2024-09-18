@@ -26,5 +26,8 @@
   "typescript.format.semicolons": "insert",
   "css.lint.emptyRules": "ignore",
   "cSpell.diagnosticLevel": "Information",
-  "cSpell.words": ["novelworks", "garoon", "garsche", "signup", "notif", "gbdev", "kintone", "cybozu"]
+  "cSpell.words": ["novelworks", "garoon", "garsche", "signup", "notif", "gbdev", "kintone", "cybozu"],
+  "files.watcherExclude": {
+    "**/target": true
+  }
 }

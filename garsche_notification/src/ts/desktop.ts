@@ -6,6 +6,7 @@ function main(PLUGIN_ID: string) {
     const record = event.record;
     record["title"].value = "title";
     record["createdAt"].disabled = true;
+    record["status"].value = "ドラフト";
     record["status"].disabled = true;
     return event;
   });
@@ -40,47 +41,35 @@ function main(PLUGIN_ID: string) {
   });
 
   const buttonEvent = initialEvent.concat(["app.record.detail.show"]);
-  kintone.events.on(buttonEvent, (event) => {
-    const record = event.record;
+  kintone.events.on(buttonEvent, async (event) => {
+    let record = event.record;
 
     const keepButton = document.createElement('button');
     keepButton.id = 'keepButton';
     keepButton.innerText = '保存';
     keepButton.style.marginLeft = '8px';
-    const keepSpaceField = kintone.app.record.getSpaceElement('keep');
-    keepSpaceField.appendChild(keepButton);
+    // const keepSpaceField = kintone.app.record.getSpaceElement('keep');
+    // keepSpaceField.appendChild(keepButton);
 
     const generateButton = document.createElement('button');
     generateButton.id = 'generateButton';
     generateButton.innerText = '生成';
     generateButton.style.marginLeft = '8px';
-    generateButton.onclick = function () {
-      if (!record["notificationContent"]) {
-        console.error("Field 'notificationContent' not found in the record.");
-        return;
-      }
+    generateButton.onclick = async function () {
+      const updatedRecord = (await kintone.app.record.get()).record;
+      record = updatedRecord;
+      const startDate = record["startDate"].value || '';
+      const duringDate = record["duringDate"].value || null;
+      const newDate = new Date(startDate);
+      newDate.setDate(newDate.getDate() + duringDate);
+      const calculatedEndDateStr = newDate.toISOString().split('T')[0];
 
-      record["notificationContent"].value = `
-      【対象製品】
-      ガル助 ver.2 (Garoonパッケージ版/クラウド版）
+      const endDate = record["endDate"].value || calculatedEndDateStr || '';
+      const content = record["content"].value || '';
+      const works = record["works"].value || '';
+      const system = record["system"].value || '';
 
-      【メンテナンス内容】
-      ・連携ユーザー設定画面のページネーションの動作不具合の改修
-      ・施設の連携設定時に選択肢がない場合の動作不具合の改修
-      ・連携ユーザー/施設連携設定画面の表示に時間がかかる場合
-      　読み込み中であることがわかるよう、インジケーターを表示する変更
-
-      【機能アップデート】
-      ・ご利用のGaroon環境の予定の同期状態をご確認いただけるようになります。
-      ・連携ユーザー画面/施設の連携設定画面にて1ページあたりの最大表示数を
-      　100まで自由に変更いただけるようになります。
-      【ユーザー様のご対応】
-      アップデート内容が反映されていない場合はブラウザのスーパーリフレッシュ
-      もしくはブラウザのタブを閉じ再度Garoonにアクセスしてください。
-
-      ご不明な点がございましたらお問い合わせフォームまでご連絡いただけますようお願い申し上げます。
-      ご迷惑をおかけいたしますが何卒よろしくお願いいたします。
-      `;
+      record["notificationContent"].value = `【メンテナンス日時】\r\n${startDate} ～ ${endDate}\r\n\r\n${content}\r\n\r\n【ユーザー様のご対応】\r\n${works}\r\n\r\n【システム停止】\r\n${system}\r\n`;
 
       setTimeout(() => {
         kintone.app.record.set({ record });
