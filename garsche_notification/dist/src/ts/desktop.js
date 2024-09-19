@@ -126,22 +126,31 @@ function main(PLUGIN_ID) {
         shareButton.innerText = "公開";
         shareButton.style.marginLeft = "8px";
         shareButton.onclick = async () => {
+            const updatedRecord = (await kintone.app.record.get()).record;
             const headers = {
                 "Content-Type": "application/json",
                 "x-api-key": "dfSe2W4BxG8EtfH3eqVIL6001b2uD6R01FwarSAy",
                 "Access-Control-Allow-Origin": "",
             };
+            let startDate = exactlyTime(updatedRecord["startDate"].value);
+            let endDate = new Date(exactlyTime(updatedRecord["endDate"].value));
+            const dayNumber = updatedRecord["maintenanceTime"].value;
+            if (startDate) {
+                const newDate = new Date(startDate);
+                newDate.setDate(newDate.getDate() + Number(dayNumber));
+                endDate = newDate;
+            }
             const data = {
                 notification: {
                     created_at: Date.now(),
-                    exp_date: Date.now() + 30 * 24 * 60 * 60 * 1000,
-                    title: record["title"].value,
-                    body: record["notificationContent"].value,
+                    exp_date: endDate,
+                    title: updatedRecord["title"].value,
+                    body: updatedRecord["notificationContent"].value,
                 },
             };
             try {
                 const response = await axios.put("https://api.dev.garsche.net/db/notification", data, { headers });
-                record["status"].value = "公開済み";
+                updatedRecord["status"].value = "公開済み";
             }
             catch (error) {
                 console.error("Error:", error.response ? error.response.data : error.message);
