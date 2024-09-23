@@ -1,31 +1,29 @@
-"use strict";
 const axios = require("axios");
-function formatDateTime(date) {
-    const year = date.getFullYear();
-    const month = ('0' + (date.getMonth() + 1)).slice(-2);
-    const day = ('0' + date.getDate()).slice(-2);
-    const hours = date.getHours();
-    const minutes = ('0' + date.getMinutes()).slice(-2);
-    const ampm = hours < 12 ? '午前' : '午後';
-    const formattedHour = hours % 12 || 12;
-    return `${year}/${month}/${day} ${ampm}${formattedHour}:${minutes}`;
+import { format, addHours, addDays } from "date-fns";
+function formatDate(dt, displayHours = true) {
+    const weekdays = ["月", "火", "水", "木", "金", "土", "日"];
+    const year = dt.getFullYear();
+    const month = dt.getMonth() + 1;
+    const day = dt.getDate();
+    const weekday = weekdays[dt.getDay()];
+    const hours = dt.getHours().toString().padStart(2, '0');
+    const minutes = dt.getMinutes().toString().padStart(2, '0');
+    return displayHours ? `${year}年${month}月${day}日(${weekday})${hours}：${minutes}` : `${year}年${month}月${day}日(${weekday})`;
 }
-function calculateTimeDifference(date1, date2) {
-    const diffInMilliseconds = date2.getTime() - date1.getTime();
-    const diffInMinutes = Math.floor(diffInMilliseconds / 1000 / 60);
-    const hours = Math.floor(diffInMinutes / 60);
-    return hours;
-}
-function exactlyTime(startDate) {
-    if (startDate) {
-        const dateObj = new Date(startDate);
-        dateObj.setHours(dateObj.getHours() + 6);
-        const updatedDateStr = dateObj.toString();
-        return updatedDateStr;
+function formatDatetimeRange(start, end) {
+    if (start.toDateString() === end.toDateString()) {
+        return `${formatDate(start)}～ ${end.getHours().toString().padStart(2, '0')}：${end.getMinutes().toString().padStart(2, '0')}`;
     }
     else {
-        return "";
+        return `${formatDate(start)}～${formatDate(end)}`;
     }
+}
+function convertToTimeZone(dateString) {
+    const date = new Date(dateString);
+    const timezone = date.getTimezoneOffset();
+    const formarttedDate = format(dateString, "yyyy-MM-dd HH:mm:ss");
+    const addedDate = addHours(formarttedDate, (9 + timezone / 60));
+    return addedDate;
 }
 function main(PLUGIN_ID) {
     ("use strict");
@@ -48,24 +46,6 @@ function main(PLUGIN_ID) {
             kintone.app.record.setFieldShown("duringDate", true);
             kintone.app.record.setFieldShown("endDate", false);
         }
-        return event;
-    });
-    const maintenanceEvent = initialEvent.concat(["app.record.create.change.startDate", "app.record.edit.change.startDate", "app.record.create.change.duringDate", "app.record.edit.change.duringDate", "app.record.create.change.endDate", "app.record.edit.change.endDate"]);
-    kintone.events.on(maintenanceEvent, function (event) {
-        const record = event.record;
-        const today = new Date();
-        let startDate = exactlyTime(record["startDate"].value);
-        let endDate = exactlyTime(record["endDate"].value);
-        const duringDate = record["duringDate"].value || null;
-        record["maintenanceTime"].value = calculateTimeDifference(new Date(exactlyTime(today.toString())), new Date(endDate));
-        if (startDate) {
-            const newDate = new Date(startDate);
-            newDate.setDate(newDate.getDate() + Number(duringDate));
-            const calculatedEndDateStr = newDate.toString();
-            endDate = calculatedEndDateStr;
-            record["maintenanceTime"].value = calculateTimeDifference(new Date(startDate), new Date(endDate));
-        }
-        record["status"].value = new Date(exactlyTime(today.toString())) > new Date(endDate) ? "ドラフト" : "公開済み";
         return event;
     });
     const dropDownEvent = initialEvent.concat(["app.record.create.change.kindNotification", "app.record.edit.change.kindNotification"]);
@@ -99,16 +79,17 @@ function main(PLUGIN_ID) {
         generateButton.onclick = async function () {
             const updatedRecord = (await kintone.app.record.get()).record;
             record = updatedRecord;
-            let startDate = exactlyTime(record["startDate"].value);
-            let endDate = exactlyTime(record["endDate"].value);
-            const duringDate = record["duringDate"].value || null;
-            let displayDate = `終了日：${endDate}`;
+            const startDate = record["startDate"].value || "";
+            const endDate = record["endDate"].value || "";
+            const maintenanceTime = record["maintenanceTime"].value || "";
+            let displayDate = `終了日：${formatDate(convertToTimeZone(endDate), false)}`;
             if (startDate !== "") {
                 const newDate = new Date(startDate);
-                newDate.setDate(newDate.getDate() + Number(duringDate));
-                const calculatedEndDateStr = newDate.toString();
-                endDate = calculatedEndDateStr;
-                displayDate = `${formatDateTime(new Date(startDate))} ～ ${formatDateTime(new Date(endDate))}`;
+                console.log(newDate);
+                const addedDate = addHours(newDate, Number(maintenanceTime));
+                console.log(addedDate);
+                console.log(addedDate.toString());
+                displayDate = `${formatDatetimeRange(convertToTimeZone(startDate), convertToTimeZone(addedDate.toString()))}`;
             }
             const content = record["content"].value || "";
             const works = record["works"].value || "";
@@ -126,31 +107,30 @@ function main(PLUGIN_ID) {
         shareButton.innerText = "公開";
         shareButton.style.marginLeft = "8px";
         shareButton.onclick = async () => {
-            const updatedRecord = (await kintone.app.record.get()).record;
             const headers = {
                 "Content-Type": "application/json",
                 "x-api-key": "dfSe2W4BxG8EtfH3eqVIL6001b2uD6R01FwarSAy",
                 "Access-Control-Allow-Origin": "",
             };
-            let startDate = exactlyTime(updatedRecord["startDate"].value);
-            let endDate = new Date(exactlyTime(updatedRecord["endDate"].value));
-            const dayNumber = updatedRecord["maintenanceTime"].value;
-            if (startDate) {
-                const newDate = new Date(startDate);
-                newDate.setDate(newDate.getDate() + Number(dayNumber));
-                endDate = newDate;
+            const startDate = record["startDate"].value;
+            let endDate = convertToTimeZone(record["endDate"].value);
+            const duringDate = record["duringDate"].value;
+            if (startDate !== "") {
+                const newDate = convertToTimeZone(startDate);
+                endDate = addDays(newDate, Number(duringDate));
             }
+            console.log(endDate);
             const data = {
                 notification: {
                     created_at: Date.now(),
-                    exp_date: endDate,
-                    title: updatedRecord["title"].value,
-                    body: updatedRecord["notificationContent"].value,
+                    exp_date: endDate.getTime(),
+                    title: record["title"].value,
+                    body: record["notificationContent"].value,
                 },
             };
             try {
                 const response = await axios.put("https://api.dev.garsche.net/db/notification", data, { headers });
-                updatedRecord["status"].value = "公開済み";
+                record["status"].value = "公開済み";
             }
             catch (error) {
                 console.error("Error:", error.response ? error.response.data : error.message);
