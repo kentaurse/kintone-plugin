@@ -85,10 +85,7 @@ function main(PLUGIN_ID) {
             let displayDate = `終了日：${formatDate(convertToTimeZone(endDate), false)}`;
             if (startDate !== "") {
                 const newDate = new Date(startDate);
-                console.log(newDate);
                 const addedDate = addHours(newDate, Number(maintenanceTime));
-                console.log(addedDate);
-                console.log(addedDate.toString());
                 displayDate = `${formatDatetimeRange(convertToTimeZone(startDate), convertToTimeZone(addedDate.toString()))}`;
             }
             const content = record["content"].value || "";
@@ -119,7 +116,6 @@ function main(PLUGIN_ID) {
                 const newDate = convertToTimeZone(startDate);
                 endDate = addDays(newDate, Number(duringDate));
             }
-            console.log(endDate);
             const data = {
                 notification: {
                     created_at: Date.now(),
